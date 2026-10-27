@@ -1,0 +1,14 @@
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { usePosts } from '../context/PostsContext.jsx';
+
+export default function Home() {
+  const { posts } = usePosts();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get('search') || '';
+  const filtered = posts.filter((post) => post.title.toLowerCase().includes(search.toLowerCase()));
+  function updateSearch(event) { const value = event.target.value; setSearchParams(value ? { search: value } : {}, { replace: true }); }
+
+  return <div className="home-page">{location.state?.createdPostId&&<div className="publish-notice" role="status"><span>✓</span> Your story is published and ready to read. <Link to={`/posts/${location.state.createdPostId}`}>Open it ↗</Link></div>}<section className="home-hero"><p className="eyebrow"><span/> A JOURNAL FOR THE IN-BETWEEN</p><h1>Stories for a<br/>life <em>in progress.</em></h1><p>A collection of small thoughts on living, making, and finding your way through the everyday.</p><a href="#journal" className="hero-scroll">READ THE JOURNAL <span>↓</span></a><div className="hero-art" aria-hidden="true"><span className="sun-disc"/><span className="art-window"/><span className="art-plant">✳</span><span className="art-book">THE<br/>QUIET<br/>THINGS</span></div><span className="hero-index">VOLUME 01 &nbsp; · &nbsp; EST. 2025</span></section><section className="journal-section" id="journal"><div className="journal-heading"><div><p className="eyebrow">THE LATEST NOTES</p><h2>A little time to read.</h2></div><Link className="create-link" to="/create">+ Create post</Link></div><label className="search-field"><span aria-hidden="true">⌕</span><input type="search" value={search} onChange={updateSearch} placeholder="Search the journal by title…" aria-label="Search posts by title"/>{search && <button type="button" onClick={()=>setSearchParams({}, {replace:true})}>Clear</button>}</label><div className="post-list">{filtered.length ? filtered.map((post,index)=><article className="post-preview" key={post.id}><span className="post-index">{String(index+1).padStart(2,'0')}</span><div className="post-preview-copy"><div className="post-meta"><span>{post.category}</span><span>{post.date}</span></div><h3><Link to={`/posts/${post.id}`}>{post.title}</Link></h3><p>{post.excerpt}</p><span className="read-time">{post.readTime}</span></div><Link className="post-arrow" to={`/posts/${post.id}`} aria-label={`Read ${post.title}`}>↗</Link></article>):<div className="empty-results"><p>No stories found for “{search}”.</p><button type="button" onClick={()=>setSearchParams({}, {replace:true})}>Clear search</button></div>}</div></section><section className="about-note" id="about"><span>✳</span><p>“A place to put the thoughts that might otherwise drift away.”</p><small>THE READING ROOM · ABOUT THIS JOURNAL</small></section></div>;
+}
+
